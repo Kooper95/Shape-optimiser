@@ -1,0 +1,119 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#include "dataTable"
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0.1 0 0);
+
+
+boundaryField
+{
+    /*
+    inlet
+    {
+        type            fixedValue;
+        value           uniform (650 0 0);
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform (0 0 0);
+        value           uniform (0 0 0);
+    }
+
+    bottomWall
+    {
+        type            supersonicFreestream;
+        pInf            100000;
+        TInf            300;
+        UInf            (650 0 0);
+        gamma           1.28418;
+        value           uniform (650 0 0);
+    }
+
+    topWall
+    {
+        type            supersonicFreestream;
+        pInf            100000;
+        TInf            300;
+        UInf            (650 0 0);
+        gamma           1.28418;
+        value           uniform (650 0 0);
+    }
+
+    prismWall
+    {
+        type            noSlip;
+    }
+
+    defaultFaces
+    {
+        type            empty;
+    }
+  */  
+    
+    
+    
+    
+    minY
+    {
+        type            empty;
+    }
+    maxY
+    {
+        type groovyBC;
+        valueExpression "vector(xvel,0,0)";
+        variables       "ro{maxY}=rho;xvel=(2000*4.09533e-07 )/(1e-8 + ro*$AreaMaxY);";
+        value           $internalField;
+    }
+    theWalls
+    {
+        type            noSlip;
+    }
+    minX
+    {
+        type             groovyBC;
+        valueExpression  "vector(xvel,0,0)";
+        variables        "ro{minX}=rho;xvel=($Power*4.48466e-7 )/(1e-8 + ro*$AreaMinX);";
+        value           $internalField;
+    }
+    maxX
+    {
+        type            advective;
+        phi             phi;
+    }
+    minZ
+    {
+        type           wedge;//wedge;
+    }
+    maxZ
+    {
+        type           wedge;//wedge;
+    }
+    /*defaultFaces
+    {
+        type        empty;
+    }*/
+    
+}
+
+// ************************************************************************* //
+
+//3215.36 - 117.25 Log[p] -  1. Sqrt[9.04342*10^6 + Log[p] (-750247. + 13747.6 Log[p])]
+
+

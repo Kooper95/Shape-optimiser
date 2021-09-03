@@ -1,0 +1,122 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  8                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      createPatchDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Do a synchronisation of coupled points after creation of any patches.
+// Note: this does not work with points that are on multiple coupled patches
+//       with transformations (i.e. cyclics).
+pointSync false;
+
+// Patches to create. An empty patch list just removes patches with zero
+// faces from $FOAM_CASE/constant/polyMesh/boundary.
+
+patches
+(
+);
+/*
+    // Patches to create.
+patches
+(
+    {
+        // Name of new patch
+        name MinZ;
+
+        // Dictionary to construct new patch from
+        patchInfo
+        {
+            type cyclic;
+            neighbourPatch MaxZ;
+        }
+
+        // How to construct: either from 'patches' or 'set'
+        constructFrom patches;
+
+        // If constructFrom = patches : names of patches. Wildcards allowed.
+        patches (minZ);
+
+        // If constructFrom = set : name of faceSet
+        //set f0;
+    }
+    {
+        // Name of new patch
+        name MaxZ;
+
+        // Dictionary to construct new patch from
+        patchInfo
+        {
+            type cyclic;
+            neighbourPatch MinZ;
+        }
+
+        // How to construct: either from 'patches' or 'set'
+        constructFrom patches;
+
+        // If constructFrom = patches : names of patches. Wildcards allowed.
+        patches (maxZ);
+
+        // If constructFrom = set : name of faceSet
+        //set f0;
+    }
+);
+
+
+patches
+(
+    {
+        name MaxZ;
+
+        // Dictionary to construct new patch from
+        patchInfo
+        {
+            type            cyclicAMI;
+            inGroups        1(cyclicAMI);
+            matchTolerance  0.01;
+            transform       rotational;
+            neighbourPatch  MinZ;
+            rotationAxis    (1 0 0);
+            rotationCentre  (0 0 0);
+        }
+        // How to construct: either from 'patches' or 'set'
+        constructFrom patches;
+
+        // If constructFrom = patches : names of patches. Wildcards allowed.
+        patches (maxZ);
+    }
+    {
+        name MinZ;
+
+        // Dictionary to construct new patch from
+        patchInfo
+        {
+            type            cyclicAMI;
+            inGroups        1(cyclicAMI);
+            matchTolerance  0.01;
+            transform       rotational;
+            neighbourPatch  MaxZ;
+            rotationAxis    (1 0 0);
+            rotationCentre  (0 0 0);
+        }
+        // How to construct: either from 'patches' or 'set'
+        constructFrom patches;
+
+        // If constructFrom = patches : names of patches. Wildcards allowed.
+        patches (minZ);
+    }
+ 
+ 
+ 
+);
+*/
+// ************************************************************************* //

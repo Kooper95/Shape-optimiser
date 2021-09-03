@@ -1,0 +1,18 @@
+
+dprepro $1 test.template testing.in 
+
+#copy to gross and run
+cp testing.in gross/testing.in
+cd gross
+./run
+cd ..
+
+#copy to nice and run
+cp testing.in nice/testing.in
+cd nice
+./run
+cd ..
+
+# export results file
+
+mv -f nice/results.tmp $2

@@ -1,0 +1,141 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+libs (
+     // "libOpenFOAM.so"
+      "libsimpleSwakFunctionObjects.so"
+     // "libswakFunctionObjects.so"
+      "libgroovyBC.so"
+     // "libsampling.so"
+     // "libswakCloudFunctionObjects.so"
+     );
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+//#include "meshvar"
+
+application     rhoCentralFoam;
+
+startFrom       latestTime;
+
+startTime       0.0006;
+
+stopAt          endTime;
+
+endTime         0.006;
+
+deltaT          5e-09;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.0001;
+
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           2.0;
+maxAlphaCo      1.5;
+
+maxDeltaT       1e-07;
+
+// ************************************************************************* //
+
+ 
+functions
+{
+    stopIfNoChange {
+        type writeAndEndSwakExpression;
+        valueType internalField;
+        logicalExpression "(dtot < threshold)"; 
+        logicalAccumulation and;  
+        variables (
+            "p0{patch'maxY}=max(p);"
+            "p1{patch'maxY}=max(p);"
+            "p2{patch'maxY}=max(p);"
+            "p3{patch'maxY}=max(p);"
+            "i0{patch'minX}=max(p);"
+            "i1{patch'minX}=max(p);"
+            "i2{patch'minX}=max(p);"
+            "i3{patch'minX}=max(p);"
+            
+            "d1=mag(p0-p1);"
+            "d2=mag(p0-p2);"
+            "d3=mag(p0-p3);"
+            "id1=mag(i0-i1);"
+            "id2=mag(i0-i2);"
+            "id3=mag(i0-i3);"
+            
+            "dtot=d1+d2+d3+id1+id2+id3;"
+            "threshold=800;"
+            
+            //"pro0{cellSet'c0}=average(U);"
+            
+            
+        );
+        delayedVariables (
+            {
+                name p1;
+                delay 0.00001;
+                storeInterval 5e-6;
+                startupValue "0";
+            }
+            {
+                name p2;
+                delay 0.00005;
+                storeInterval 5e-6;
+                startupValue "1000";
+            }
+            {
+                name p3;
+                delay 0.0006;
+                storeInterval 5e-6;
+                startupValue "0";
+            }
+            {
+                name i1;
+                delay 0.00001;
+                storeInterval 5e-6;
+                startupValue "0";
+            }
+            {
+                name i2;
+                delay 0.00005;
+                storeInterval 5e-6;
+                startupValue "1000";
+            }
+            {
+                name i3;
+                delay 0.0006;
+                storeInterval 5e-6;
+                startupValue "0";
+            }
+        );
+        verbose true;
+        writeControl adjustableRunTime;
+        writeInterval 0.0001;
+    }
+}

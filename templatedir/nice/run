@@ -1,0 +1,74 @@
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+
+
+#------------------------------------------------------------------------------
+#cd ${0%/*} || exit 1
+clear
+source clean
+
+#dprepro $1 test.template testing.in 
+
+myvar=$(cat testing.in | awk '{print $1}' ) >/dev/null
+echo "Power $(python -c "print(float($myvar))");" > ./0/dataTable
+
+#------------------------------------------------------------------------------
+echo -e "\n
+Start meshing
+------------------------------------------------------------------------------"
+
+#$(cat testing.in | awk '{print $15}' )
+
+#gmsh meshing.geo -3 -o TheMesh.msh -format msh2
+
+
+
+gmsh meshing.geo -setnumber b0 $(cat testing.in | awk '{print $3}' ) -setnumber b1 $(cat testing.in | awk '{print $4}' ) -setnumber Rin $(cat testing.in | awk '{print $2}' ) -setnumber Power $(cat testing.in | awk '{print $1}' ) -3 -o TheMesh.msh -format msh2 >/dev/null
+gmshToFoam TheMesh.msh >/dev/null
+
+
+
+extrudeMesh  >/dev/null #> logFile
+
+transformPoints -scale '(.001 .001 .001)' >/dev/null
+
+#------------------------------------------------------------------------------
+echo -e "   - Change boundary type to wedge (polyMesh/boundary)"
+changeDictionary >/dev/null # >> logFile
+
+
+#------------------------------------------------------------------------------
+echo -e "   - Remove not needed patch entries"
+createPatch -overwrite >/dev/null #>> logFile
+#topoSet >/dev/null
+#checkMesh
+
+
+
+mkdir 0.0006
+runApplication mapFields ../gross -consistent
+
+
+#------------------------------------------------------------------------------
+echo -e "   - parallelize (scotch decomposition)"
+decomposePar -force >/dev/null #>> logFile
+runParallel renumberMesh -overwrite
+
+#------------------------------------------------------------------------------
+runParallel $(getApplication) #>/dev/null 
+
+
+#------------------------------------------------------------------------------
+echo -e "   - Reconstruct"
+reconstructPar >/dev/null #>> logFile
+
+
+
+python objective.py $(echo "$(postProcess -func "patchAverage(T,name=minX)")" | tail -4 | head -1 | awk '{print $5}') $(cat testing.in | awk '{print $1}' ) > results.tmp
+
+#$(tail -n1 ./postProcessing/inletData/0/surfaceFieldValue.dat | awk '{print $2}') 
+
+python constraint.py $(echo "$(postProcess -func "patchAverage(p,name=maxY)")" | tail -4 | head -1 | awk '{print $5}') >> results.tmp #MaxY temp
+
+#cat results.tmp > $2
+

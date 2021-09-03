@@ -1,0 +1,67 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version         2;
+    format          ascii;
+    class           volScalarField;
+    object          T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [ 0 0 0 1 0 0 0 ];
+
+internalField   uniform 373;
+
+boundaryField
+{
+    minY
+    {
+        type            empty;
+    }
+    maxY
+    {
+        type fixedValue;
+        value uniform 298.15;
+    }
+    theWalls
+    {
+        type            zeroGradient;
+    }
+    minX
+    {
+        type fixedValue;
+        value uniform 413.15;
+        //type            zeroGradient;
+        /*type            groovyBC;
+        valueExpression "3215.35591022982 - 117.25 * log(p2) - sqrt(9.043422387964277*pow(10,6) + log(p2) * (-750246.6159488928 + 13747.5625 * log(p2)))";
+        variables       "p2=p;";
+        value           $internalField;*/
+    }
+    maxX
+    {
+        type            advective;
+        phi             phi;
+        //type            zeroGradient;
+    }
+    minZ
+    {
+        type            wedge;//wedge;
+    }
+    maxZ
+    {
+        type            wedge;//wedge;
+    }
+    /*defaultFaces
+    {
+        type        empty;
+    }*/
+}
+
+
+// ************************************************************************* //

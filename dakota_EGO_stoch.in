@@ -1,0 +1,62 @@
+#@ s*: TimeoutDelay=120
+#@ s*: Label=StochDiff
+
+#run with: "dakota -i dakota_EGO_stoch.in" in the folder: "../OptimiserJetPump/"
+
+# These tests are not reproducible due to nonblocking synchronization
+
+method
+  soga
+    max_iterations = 50
+    max_function_evaluations = 1000
+    #seed = 11011011
+    population_size = 20
+    fitness_type merit_function 
+    constraint_penalty = 10000
+    convergence_type best_fitness_tracker
+    mutation_type offset_normal
+    mutation_rate 0.25
+    crossover_type shuffle_random
+        num_parents = 3
+        num_offspring = 2
+    crossover_rate 0.3
+    replacement_type unique_roulette_wheel #roulette_wheel # = 10
+
+model
+  single
+
+
+variables,
+    continuous_design = 4
+      initial_point    7680.8646619       0.50       1.8372018313       5.0549564890 
+      upper_bounds     10000              1.80       3                  9
+      lower_bounds     2000               0.23       1.3                3.01
+      descriptors     'Power'            'Rin'     'b0'              'b1'
+      
+
+interface,
+    fork         
+        asynchronous
+        evaluation_concurrency=4
+        analysis_driver = 'runAll'
+        work_directory  
+          named 'workdir'
+          directory_tag
+          directory_save
+        copy_files = 'templatedir/*'
+        aprepro
+        deactivate active_set_vector
+        
+
+responses,
+    objective_functions = 1
+    nonlinear_inequality_constraints = 1
+    nonlinear_inequality_upper_bounds  0
+    no_gradients
+    no_hessians
+    
+
+    
+    
+    
+    
